@@ -4,7 +4,7 @@ Smart crowdsourced parcel shipping & delivery platform connecting shipping compa
 
 ---
 
-## 🌟 Key Subsystems (عناصر المنظومة)
+##  Key Subsystems (عناصر المنظومة)
 
 1. **Driver Mobile App (`apps/driver-app`)**: Flutter app for drivers featuring optimized route delivery, Haversine Geofence ePOD validation, and offline sync queue.
 2. **Supervisor Mobile App (`apps/supervisor-app`)**: Flutter app for hub supervisors to scan incoming parcels, assign batches to drivers, and process cash settlements.
@@ -15,7 +15,7 @@ Smart crowdsourced parcel shipping & delivery platform connecting shipping compa
 
 ---
 
-## 🛠 Tech Stack (التقنيات المستخدمة)
+##  Tech Stack (التقنيات المستخدمة)
 
 - **Mobile:** Flutter (Dart)
 - **Web Frontend:** React, TypeScript, Vite
@@ -27,7 +27,7 @@ Smart crowdsourced parcel shipping & delivery platform connecting shipping compa
 
 ---
 
-## 🚀 Quick Start (تشغيل البيئة محلياً)
+##  Quick Start (تشغيل البيئة محلياً)
 
 ```bash
 # Clone the repository
