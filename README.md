@@ -40,5 +40,5 @@ docker-compose -f flutter_application_1/docker-compose.yml up -d
 
 ---
 
-## 📄 License
+##  License
 All rights reserved © 2026 Mostaql Shipping Platform.
