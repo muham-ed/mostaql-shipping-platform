@@ -1,6 +1,15 @@
 # Mostaql Shipping Platform | منصة مستقل لشحن وتوصيل الطرود
 
-Smart crowdsourced parcel shipping & delivery platform connecting shipping companies and independent drivers with AI route optimization, geofenced proof-of-delivery (ePOD), and automated cash collection (COD) settlements.
+> 🚀 **Smart Crowdsourced Parcel Shipping & Logistics Orchestration Infrastructure**
+> Connecting shipping companies and independent delivery drivers with AI route optimization (VRP), geofenced proof-of-delivery (ePOD), and automated cash collection (COD) wallet settlements.
+
+---
+
+## 📸 App Screenshots & Live Visuals (شاشات المنظومة الحية)
+
+| Driver Mobile App (تطبيق المندوب) | Hub Supervisor App (تطبيق المشرف) |
+| :---: | :---: |
+| <img src="docs/screenshots/Screenshot_1792289520.png" width="350" /> | <img src="docs/screenshots/Screenshot_20261005_164841.png" width="350" /> |
 
 ---
 
