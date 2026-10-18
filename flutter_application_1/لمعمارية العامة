@@ -1,0 +1,48 @@
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENTS (العملاء)                        │
+├──────────────┬──────────────┬──────────────┬───────────────────┤
+│  Driver App  │Supervisor App│ Admin Panel  │  Company Portal   │
+│  (Flutter)   │  (Flutter)   │  (React)     │  (React - Web)    │
+└──────┬───────┴──────┬───────┴──────┬───────┴────────┬──────────┘
+       │              │              │                │
+       └──────────────┴──────────────┴────────────────┘
+                              │
+                    ┌─────────▼─────────┐
+                    │   API Gateway     │ (Kong / Nginx)
+                    │  Rate Limiting    │
+                    │  Auth / JWT       │
+                    └─────────┬─────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────▼───────┐   ┌─────────▼─────────┐  ┌───────▼────────┐
+│  Core API     │   │  Routing Engine   │  │  Realtime Hub  │
+│  (NestJS)     │   │  (Python/FastAPI) │  │  (Socket.io)   │
+│               │   │                   │  │                │
+│ - Auth        │   │ - VRP Solver      │  │ - Live Track   │
+│ - Shipments   │   │ - OR-Tools        │  │ - Driver Loc   │
+│ - Drivers     │   │ - ETA Prediction  │  │ - Status Push  │
+│ - Companies   │   │ - Clustering      │  │                │
+│ - COD         │   │                   │  │                │
+│ - Ratings     │   │                   │  │                │
+└───────┬───────┘   └─────────┬─────────┘  └───────┬────────┘
+        │                     │                     │
+        └─────────────────────┼─────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────▼───────┐   ┌─────────▼─────────┐  ┌───────▼────────┐
+│  PostgreSQL   │   │   Redis Cluster   │  │  Object Store  │
+│  (Primary DB) │   │  (Cache/Queue)    │  │  (S3/MinIO)    │
+│               │   │                   │  │                │
+│ - PostGIS     │   │ - Sessions        │  │ - ePOD Photos  │
+│ - Read Replica│   │ - BullMQ Jobs     │  │ - Signatures   │
+└───────────────┘   └───────────────────┘  └────────────────┘
+                              │
+                    ┌─────────▼─────────┐
+                    │  External APIs    │
+                    │ - Google Maps     │
+                    │ - SMS/Push (FCM)  │
+                    │ - Payment Gateway │
+                    │ - Absher/Tam      │
+                    └───────────────────┘

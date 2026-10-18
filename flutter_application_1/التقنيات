@@ -1,0 +1,13 @@
+
+الطبقة	التقنية	لماذا؟ (المبرر الصارم)
+تطبيقات الموبايل	Flutter (Dart)	كود واحد لـ iOS و Android. الأداء قريب من Native. لا تقبل React Native إذا كان التطبيق يحتاج تتبع GPS مستمر في الخلفية (Background Location) — Flutter أنضج هنا.
+لوحة التحكم	React + TypeScript + Vite	معيار السوق. TypeScript إلزامي، وإلا ستدفع ثمن الأخطاء في الإنتاج.
+الـ API الأساسي	NestJS (Node.js + TypeScript)	بنية Modular، حقن تبعيات، دعم WebSockets مدمج، وTypeScript يقلل أخطاء الـ Runtime.
+محرك التوجيه	Python + FastAPI + OR-Tools	OR-Tools من Google هي المكتبة الوحيدة الجدية لحل VRP. FastAPI أسرع من Flask وأفضل توثيقًا.
+قاعدة البيانات	PostgreSQL 16 + PostGIS	PostGIS ضروري للاستعلامات الجغرافية (أقرب مندوب، النطاقات الجغرافية). لا تقبل MySQL.
+الكاش والطوابير	Redis + BullMQ	لتوزيع المهام (حساب المسارات، إرسال الإشعارات) بشكل غير متزامن.
+تخزين الملفات	S3-compatible (MinIO للتطوير)	صور إثبات التسليم لا تُخزن في قاعدة البيانات أبدًا.
+الخرائط	Google Maps Platform	الأدق في المنطقة العربية. لكن احذر: تكلفة الـ Directions API مرتفعة. استخدمها بحكمة مع Cache.
+الإشعارات	Firebase Cloud Messaging (FCM)	مجاني وموثوق لـ Push.
+المراقبة	Sentry + Grafana + Prometheus	بدونها أنت أعمى. أي مشروع بدون Logging و Monitoring هو مشروع هاوٍ.
+CI/CD	GitHub Actions + Docker	كل commit يجب أن يمر باختبارات. لا استثناءات.

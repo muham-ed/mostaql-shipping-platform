@@ -1,0 +1,3 @@
+# Architecture
+
+See main README.

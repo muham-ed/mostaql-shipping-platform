@@ -1,0 +1,866 @@
+mostaql-shipping-platform/
+│
+├── .github/
+│   └── workflows/
+│       ├── ci-api.yml
+│       ├── ci-routing.yml
+│       ├── ci-flutter.yml
+│       ├── ci-web.yml
+│       ├── cd-staging.yml
+│       └── cd-production.yml
+│
+├── .gitignore
+├── .editorconfig
+├── .nvmrc
+├── README.md
+├── LICENSE
+├── Makefile
+├── docker-compose.yml                    # بيئة تطوير محلية كاملة
+├── docker-compose.prod.yml
+├── turbo.json                            # Turborepo (Monorepo orchestration)
+├── package.json                          # Root workspace
+│
+│
+│ ═══════════════════════════════════════════════════════════════
+│  APPS — التطبيقات القابلة للنشر
+│ ═══════════════════════════════════════════════════════════════
+│
+├── apps/
+│   │
+│   ├── api/                              # ── Backend (NestJS) ──
+│   │   ├── src/
+│   │   │   ├── main.ts
+│   │   │   ├── app.module.ts
+│   │   │   │
+│   │   │   ├── common/
+│   │   │   │   ├── decorators/
+│   │   │   │   │   ├── current-user.decorator.ts
+│   │   │   │   │   ├── roles.decorator.ts
+│   │   │   │   │   └── public.decorator.ts
+│   │   │   │   ├── guards/
+│   │   │   │   │   ├── jwt-auth.guard.ts
+│   │   │   │   │   ├── roles.guard.ts
+│   │   │   │   │   └── api-key.guard.ts          # لشركات الشحن
+│   │   │   │   ├── interceptors/
+│   │   │   │   │   ├── logging.interceptor.ts
+│   │   │   │   │   ├── transform.interceptor.ts
+│   │   │   │   │   └── timeout.interceptor.ts
+│   │   │   │   ├── filters/
+│   │   │   │   │   ├── http-exception.filter.ts
+│   │   │   │   │   └── all-exceptions.filter.ts
+│   │   │   │   ├── pipes/
+│   │   │   │   │   └── validation.pipe.ts
+│   │   │   │   ├── middleware/
+│   │   │   │   │   ├── request-id.middleware.ts
+│   │   │   │   │   └── rate-limit.middleware.ts
+│   │   │   │   └── utils/
+│   │   │   │       ├── geo.util.ts                # Haversine, bbox
+│   │   │   │       ├── crypto.util.ts
+│   │   │   │       ├── pagination.util.ts
+│   │   │   │       └── otp.util.ts
+│   │   │   │
+│   │   │   ├── config/
+│   │   │   │   ├── app.config.ts
+│   │   │   │   ├── database.config.ts
+│   │   │   │   ├── redis.config.ts
+│   │   │   │   ├── jwt.config.ts
+│   │   │   │   ├── maps.config.ts
+│   │   │   │   ├── sms.config.ts
+│   │   │   │   ├── storage.config.ts
+│   │   │   │   └── validation.schema.ts           # Joi env validation
+│   │   │   │
+│   │   │   ├── modules/
+│   │   │   │   │
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── auth.module.ts
+│   │   │   │   │   ├── auth.controller.ts
+│   │   │   │   │   ├── auth.service.ts
+│   │   │   │   │   ├── strategies/
+│   │   │   │   │   │   ├── jwt.strategy.ts
+│   │   │   │   │   │   ├── refresh.strategy.ts
+│   │   │   │   │   │   └── api-key.strategy.ts
+│   │   │   │   │   ├── dto/
+│   │   │   │   │   │   ├── login.dto.ts
+│   │   │   │   │   │   ├── register.dto.ts
+│   │   │   │   │   │   ├── otp-send.dto.ts
+│   │   │   │   │   │   ├── otp-verify.dto.ts
+│   │   │   │   │   │   └── refresh.dto.ts
+│   │   │   │   │   └── services/
+│   │   │   │   │       ├── token.service.ts
+│   │   │   │   │       └── otp.service.ts
+│   │   │   │   │
+│   │   │   │   ├── users/
+│   │   │   │   │   ├── users.module.ts
+│   │   │   │   │   ├── users.controller.ts
+│   │   │   │   │   ├── users.service.ts
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   └── user.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       ├── create-user.dto.ts
+│   │   │   │   │       └── update-user.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── companies/
+│   │   │   │   │   ├── companies.module.ts
+│   │   │   │   │   ├── companies.controller.ts
+│   │   │   │   │   ├── companies.service.ts
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   └── company.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       ├── create-company.dto.ts
+│   │   │   │   │       └── update-company.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── drivers/
+│   │   │   │   │   ├── drivers.module.ts
+│   │   │   │   │   ├── drivers.controller.ts
+│   │   │   │   │   ├── drivers.service.ts
+│   │   │   │   │   ├── services/
+│   │   │   │   │   │   ├── driver-verification.service.ts   # Absher/Tam
+│   │   │   │   │   │   ├── driver-location.service.ts
+│   │   │   │   │   │   └── driver-availability.service.ts
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   ├── driver.entity.ts
+│   │   │   │   │   │   ├── driver-document.entity.ts
+│   │   │   │   │   │   └── driver-availability-log.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       ├── register-driver.dto.ts
+│   │   │   │   │       ├── verify-driver.dto.ts
+│   │   │   │   │       └── driver-location.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── shipments/                     # ★ الوحدة المركزية
+│   │   │   │   │   ├── shipments.module.ts
+│   │   │   │   │   ├── shipments.controller.ts
+│   │   │   │   │   ├── shipments.service.ts
+│   │   │   │   │   ├── shipment-state-machine.ts   # ★ إلزامي
+│   │   │   │   │   ├── services/
+│   │   │   │   │   │   ├── shipment-assignment.service.ts
+│   │   │   │   │   │   ├── shipment-tracking.service.ts
+│   │   │   │   │   │   ├── shipment-bulk-import.service.ts
+│   │   │   │   │   │   └── shipment-label.service.ts       # PDF barcode
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   ├── shipment.entity.ts
+│   │   │   │   │   │   ├── shipment-tracking.entity.ts
+│   │   │   │   │   │   └── shipment-item.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       ├── create-shipment.dto.ts
+│   │   │   │   │       ├── assign-shipment.dto.ts
+│   │   │   │   │       ├── pickup-shipment.dto.ts
+│   │   │   │   │       ├── deliver-shipment.dto.ts
+│   │   │   │   │       ├── fail-shipment.dto.ts
+│   │   │   │   │       └── query-shipments.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── routes/
+│   │   │   │   │   ├── routes.module.ts
+│   │   │   │   │   ├── routes.controller.ts
+│   │   │   │   │   ├── routes.service.ts
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   ├── route.entity.ts
+│   │   │   │   │   │   └── route-stop.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       ├── optimize-route.dto.ts
+│   │   │   │   │       └── route-query.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── tracking/
+│   │   │   │   │   ├── tracking.module.ts
+│   │   │   │   │   ├── tracking.controller.ts         # Public tracking
+│   │   │   │   │   └── tracking.service.ts
+│   │   │   │   │
+│   │   │   │   ├── pod/                              # إثبات التسليم ePOD
+│   │   │   │   │   ├── pod.module.ts
+│   │   │   │   │   ├── pod.controller.ts
+│   │   │   │   │   ├── pod.service.ts
+│   │   │   │   │   ├── services/
+│   │   │   │   │   │   ├── geofence-validator.service.ts   # ★
+│   │   │   │   │   │   ├── photo-validator.service.ts
+│   │   │   │   │   │   └── otp-delivery.service.ts
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   └── proof-of-delivery.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       └── submit-pod.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── cod/                              # التحصيل المالي ★
+│   │   │   │   │   ├── cod.module.ts
+│   │   │   │   │   ├── cod.controller.ts
+│   │   │   │   │   ├── cod.service.ts
+│   │   │   │   │   ├── services/
+│   │   │   │   │   │   ├── collection.service.ts
+│   │   │   │   │   │   ├── settlement.service.ts
+│   │   │   │   │   │   └── reconciliation.service.ts
+│   │   │   │   │   ├── entities/
+│   │   │   │   │   │   ├── cod-transaction.entity.ts
+│   │   │   │   │   │   └── cod-settlement.entity.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       ├── collect-cod.dto.ts
+│   │   │   │   │       └── settle-cod.dto.ts
+│   │   │   │   │
+│   │   │   │   ├── ratings/
+│   │   │   │   │   ├── ratings.module.ts
+│   │   │   │   │   ├── ratings.controller.ts
+│   │   │   │   │   ├── ratings.service.ts
+│   │   │   │   │   └── entities/
+│   │   │   │   │       └── driver-rating.entity.ts
+│   │   │   │   │
+│   │   │   │   ├── disputes/                          # ★ النزاعات
+│   │   │   │   │   ├── disputes.module.ts
+│   │   │   │   │   ├── disputes.controller.ts
+│   │   │   │   │   ├── disputes.service.ts
+│   │   │   │   │   └── entities/
+│   │   │   │   │       └── dispute.entity.ts
+│   │   │   │   │
+│   │   │   │   ├── notifications/
+│   │   │   │   │   ├── notifications.module.ts
+│   │   │   │   │   ├── notifications.service.ts
+│   │   │   │   │   ├── channels/
+│   │   │   │   │   │   ├── push.channel.ts            # FCM
+│   │   │   │   │   │   ├── sms.channel.ts
+│   │   │   │   │   │   └── email.channel.ts
+│   │   │   │   │   └── templates/
+│   │   │   │   │       ├── shipment-assigned.template.ts
+│   │   │   │   │       ├── out-for-delivery.template.ts
+│   │   │   │   │       └── delivered.template.ts
+│   │   │   │   │
+│   │   │   │   ├── routing-client/                    # اتصال بمحرك Python
+│   │   │   │   │   ├── routing-client.module.ts
+│   │   │   │   │   ├── routing-client.service.ts
+│   │   │   │   │   └── dto/
+│   │   │   │   │       └── optimize.request.ts
+│   │   │   │   │
+│   │   │   │   ├── webhooks/
+│   │   │   │   │   ├── webhooks.module.ts
+│   │   │   │   │   ├── webhooks.controller.ts
+│   │   │   │   │   └── handlers/
+│   │   │   │   │       ├── company-shipment-ingest.handler.ts
+│   │   │   │   │       └── payment-callback.handler.ts
+│   │   │   │   │
+│   │   │   │   └── health/
+│   │   │   │       ├── health.module.ts
+│   │   │   │       ├── health.controller.ts
+│   │   │   │       └── health.service.ts               # DB, Redis, Routing
+│   │   │   │
+│   │   │   ├── database/
+│   │   │   │   ├── migrations/
+│   │   │   │   │   ├── 001_init_users.ts
+│   │   │   │   │   ├── 002_init_companies.ts
+│   │   │   │   │   ├── 003_init_drivers.ts
+│   │   │   │   │   ├── 004_init_shipments.ts
+│   │   │   │   │   ├── 005_init_tracking.ts
+│   │   │   │   │   ├── 006_init_pod.ts
+│   │   │   │   │   ├── 007_init_cod.ts
+│   │   │   │   │   ├── 008_init_ratings.ts
+│   │   │   │   │   ├── 009_init_disputes.ts
+│   │   │   │   │   ├── 010_postgis_indexes.ts          # ★ GiST indexes
+│   │   │   │   │   └── 011_audit_log.ts
+│   │   │   │   ├── seeds/
+│   │   │   │   │   ├── 001_admin.seed.ts
+│   │   │   │   │   ├── 002_demo_company.seed.ts
+│   │   │   │   │   └── 003_demo_drivers.seed.ts
+│   │   │   │   └── data-source.ts
+│   │   │   │
+│   │   │   ├── queues/
+│   │   │   │   ├── queues.module.ts
+│   │   │   │   ├── processors/
+│   │   │   │   │   ├── route-optimization.processor.ts
+│   │   │   │   │   ├── notification.processor.ts
+│   │   │   │   │   ├── settlement.processor.ts
+│   │   │   │   │   ├── tracking-fanout.processor.ts
+│   │   │   │   │   └── pod-cleanup.processor.ts
+│   │   │   │   └── schedulers/
+│   │   │   │       ├── daily-settlement.scheduler.ts
+│   │   │   │       └── stale-shipment.scheduler.ts
+│   │   │   │
+│   │   │   ├── realtime/
+│   │   │   │   ├── realtime.module.ts
+│   │   │   │   ├── gateways/
+│   │   │   │   │   ├── tracking.gateway.ts             # للمستلم/الشركة
+│   │   │   │   │   ├── driver-location.gateway.ts      # من المندوب
+│   │   │   │   │   └── admin-live.gateway.ts           # للأدمن
+│   │   │   │   └── adapters/
+│   │   │   │       └── redis-socket.adapter.ts
+│   │   │   │
+│   │   │   └── audit/
+│   │   │       ├── audit.module.ts
+│   │   │       ├── audit.service.ts
+│   │   │       └── audit.interceptor.ts
+│   │   │
+│   │   ├── test/
+│   │   │   ├── unit/
+│   │   │   │   ├── shipments.service.spec.ts
+│   │   │   │   ├── shipment-state-machine.spec.ts
+│   │   │   │   └── geofence-validator.spec.ts
+│   │   │   └── e2e/
+│   │   │       ├── auth.e2e-spec.ts
+│   │   │       ├── shipments.e2e-spec.ts
+│   │   │       └── pod.e2e-spec.ts
+│   │   │
+│   │   ├── Dockerfile
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── nest-cli.json
+│   │   └── .env.example
+│   │
+│   ├── routing-engine/                          # ── Python (FastAPI) ──
+│   │   ├── app/
+│   │   │   ├── main.py
+│   │   │   ├── config.py
+│   │   │   ├── __init__.py
+│   │   │   │
+│   │   │   ├── api/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── deps.py
+│   │   │   │   └── v1/
+│   │   │   │       ├── __init__.py
+│   │   │   │       ├── router.py
+│   │   │   │       ├── optimize.py                    # POST /optimize
+│   │   │   │       ├── cluster.py                     # POST /cluster
+│   │   │   │       ├── eta.py                         # POST /eta
+│   │   │   │       └── health.py
+│   │   │   │
+│   │   │   ├── core/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── vrp_solver.py                      # OR-Tools ★
+│   │   │   │   ├── clustering.py                      # DBSCAN
+│   │   │   │   ├── eta_predictor.py
+│   │   │   │   ├── geofencing.py                      # Shapely
+│   │   │   │   ├── distance_matrix.py                 # Google + cache
+│   │   │   │   ├── osrm_client.py                     # بديل مجاني
+│   │   │   │   └── constraints.py                     # Time windows, capacity
+│   │   │   │
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── optimize_request.py
+│   │   │   │   ├── optimize_response.py
+│   │   │   │   ├── cluster_request.py
+│   │   │   │   ├── cluster_response.py
+│   │   │   │   ├── eta_request.py
+│   │   │   │   └── eta_response.py
+│   │   │   │
+│   │   │   ├── ml/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── train_eta_model.py
+│   │   │   │   ├── features.py
+│   │   │   │   ├── evaluator.py
+│   │   │   │   └── models/
+│   │   │   │       └── eta_model_v1.pkl
+│   │   │   │
+│   │   │   └── utils/
+│   │   │       ├── __init__.py
+│   │   │       ├── logger.py
+│   │   │       ├── metrics.py
+│   │   │       └── redis_cache.py
+│   │   │
+│   │   ├── tests/
+│   │   │   ├── test_vrp_solver.py
+│   │   │   ├── test_clustering.py
+│   │   │   └── test_eta.py
+│   │   ├── requirements.txt
+│   │   ├── Dockerfile
+│   │   └── .env.example
+│   │
+│   ├── driver-app/                              # ── Flutter (Driver) ──
+│   │   ├── lib/
+│   │   │   ├── main.dart
+│   │   │   ├── app.dart
+│   │   │   ├── bootstrap.dart
+│   │   │   │
+│   │   │   ├── core/
+│   │   │   │   ├── constants/
+│   │   │   │   │   ├── app_constants.dart
+│   │   │   │   │   └── api_endpoints.dart
+│   │   │   │   ├── theme/
+│   │   │   │   │   ├── app_theme.dart
+│   │   │   │   │   └── app_colors.dart
+│   │   │   │   ├── router/
+│   │   │   │   │   ├── app_router.dart               # GoRouter
+│   │   │   │   │   └── route_guards.dart
+│   │   │   │   ├── errors/
+│   │   │   │   │   ├── failures.dart
+│   │   │   │   │   └── exceptions.dart
+│   │   │   │   ├── network/
+│   │   │   │   │   ├── dio_client.dart
+│   │   │   │   │   ├── auth_interceptor.dart
+│   │   │   │   │   └── retry_interceptor.dart
+│   │   │   │   └── utils/
+│   │   │   │       ├── formatters.dart
+│   │   │   │       └── validators.dart
+│   │   │   │
+│   │   │   ├── features/
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── data/
+│   │   │   │   │   │   ├── datasources/auth_remote_datasource.dart
+│   │   │   │   │   │   ├── datasources/auth_local_datasource.dart
+│   │   │   │   │   │   ├── models/driver_model.dart
+│   │   │   │   │   │   │   └── auth_response_model.dart
+│   │   │   │   │   │   └── repositories/auth_repository_impl.dart
+│   │   │   │   │   ├── domain/
+│   │   │   │   │   │   ├── entities/driver.dart
+│   │   │   │   │   │   ├── repositories/auth_repository.dart
+│   │   │   │   │   │   └── usecases/
+│   │   │   │   │   │       ├── login_usecase.dart
+│   │   │   │   │   │       ├── register_usecase.dart
+│   │   │   │   │   │       └── verify_otp_usecase.dart
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/auth_bloc.dart
+│   │   │   │   │       ├── screens/
+│   │   │   │   │       │   ├── login_screen.dart
+│   │   │   │   │       │   ├── register_screen.dart
+│   │   │   │   │       │   └── otp_screen.dart
+│   │   │   │   │       └── widgets/
+│   │   │   │   │
+│   │   │   │   ├── home/
+│   │   │   │   │   ├── presentation/
+│   │   │   │   │   │   ├── bloc/home_bloc.dart
+│   │   │   │   │   │   └── screens/home_screen.dart
+│   │   │   │   │
+│   │   │   │   ├── shipments/
+│   │   │   │   │   ├── data/...
+│   │   │   │   │   ├── domain/...
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/shipments_bloc.dart
+│   │   │   │   │       ├── screens/
+│   │   │   │   │       │   ├── shipments_list_screen.dart
+│   │   │   │   │       │   └── shipment_details_screen.dart
+│   │   │   │   │       └── widgets/shipment_card.dart
+│   │   │   │   │
+│   │   │   │   ├── route/
+│   │   │   │   │   ├── data/...
+│   │   │   │   │   ├── domain/...
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/route_bloc.dart
+│   │   │   │   │       ├── screens/
+│   │   │   │   │       │   ├── today_route_screen.dart
+│   │   │   │   │       │   └── map_screen.dart       # Google Map
+│   │   │   │   │       └── widgets/
+│   │   │   │   │           ├── stop_marker.dart
+│   │   │   │   │           └── route_polyline.dart
+│   │   │   │   │
+│   │   │   │   ├── pickup/
+│   │   │   │   │   ├── data/...
+│   │   │   │   │   ├── domain/...
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/pickup_bloc.dart
+│   │   │   │   │       └── screens/
+│   │   │   │   │           ├── scan_screen.dart       # Barcode
+│   │   │   │   │           └── pickup_confirm_screen.dart
+│   │   │   │   │
+│   │   │   │   ├── delivery/                          # ★ ePOD
+│   │   │   │   │   ├── data/...
+│   │   │   │   │   ├── domain/
+│   │   │   │   │   │   └── pod_validator.dart         # ★ Geofence
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/delivery_bloc.dart
+│   │   │   │   │       ├── screens/
+│   │   │   │   │       │   ├── delivery_start_screen.dart
+│   │   │   │   │       │   ├── camera_screen.dart
+│   │   │   │   │       │   ├── signature_screen.dart
+│   │   │   │   │       │   ├── otp_screen.dart
+│   │   │   │   │       │   └── confirm_screen.dart
+│   │   │   │   │       └── widgets/
+│   │   │   │   │           ├── photo_preview.dart
+│   │   │   │   │           └── signature_pad.dart
+│   │   │   │   │
+│   │   │   │   ├── cod/
+│   │   │   │   │   ├── data/...
+│   │   │   │   │   ├── domain/...
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/cod_bloc.dart
+│   │   │   │   │       └── screens/
+│   │   │   │   │           ├── cod_collect_screen.dart
+│   │   │   │   │           └── cod_summary_screen.dart
+│   │   │   │   │
+│   │   │   │   ├── earnings/
+│   │   │   │   │   ├── data/...
+│   │   │   │   │   ├── domain/...
+│   │   │   │   │   └── presentation/
+│   │   │   │   │       ├── bloc/earnings_bloc.dart
+│   │   │   │   │       └── screens/earnings_screen.dart
+│   │   │   │   │
+│   │   │   │   └── profile/
+│   │   │   │       ├── data/...
+│   │   │   │       ├── domain/...
+│   │   │   │       └── presentation/
+│   │   │   │           ├── bloc/profile_bloc.dart
+│   │   │   │           └── screens/
+│   │   │   │               ├── profile_screen.dart
+│   │   │   │               ├── documents_screen.dart
+│   │   │   │               └── ratings_screen.dart
+│   │   │   │
+│   │   │   ├── services/
+│   │   │   │   ├── location_service.dart              # ★ Background GPS
+│   │   │   │   ├── camera_service.dart
+│   │   │   │   ├── notification_service.dart          # FCM
+│   │   │   │   ├── offline_service.dart               # ★ Offline queue
+│   │   │   │   ├── sync_service.dart                  # ★ مزامنة
+│   │   │   │   ├── barcode_service.dart
+│   │   │   │   ├── signature_service.dart
+│   │   │   │   └── secure_storage_service.dart
+│   │   │   │
+│   │   │   └── shared/
+│   │   │       ├── widgets/
+│   │   │       │   ├── primary_button.dart
+│   │   │       │   ├── loading_overlay.dart
+│   │   │       │   ├── empty_state.dart
+│   │   │       │   └── error_view.dart
+│   │   │       └── models/
+│   │   │           ├── api_response.dart
+│   │   │           └── paged_result.dart
+│   │   │
+│   │   ├── assets/
+│   │   │   ├── images/
+│   │   │   ├── icons/
+│   │   │   └── fonts/
+│   │   ├── test/
+│   │   │   ├── unit/pod_validator_test.dart
+│   │   │   ├── unit/offline_service_test.dart
+│   │   │   └── widget/login_screen_test.dart
+│   │   ├── android/
+│   │   ├── ios/
+│   │   ├── pubspec.yaml
+│   │   └── analysis_options.yaml
+│   │
+│   ├── supervisor-app/                        # ── Flutter (Supervisor) ──
+│   │   ├── lib/
+│   │   │   ├── main.dart
+│   │   │   ├── app.dart
+│   │   │   ├── core/                          # نفس هيكل driver-app
+│   │   │   │   ├── constants/
+│   │   │   │   ├── theme/
+│   │   │   │   ├── router/
+│   │   │   │   └── network/
+│   │   │   │
+│   │   │   └── features/
+│   │   │       ├── auth/
+│   │   │       │   └── ...
+│   │   │       ├── inbound/                   # استلام من الشركة
+│   │   │       │   ├── data/...
+│   │   │       │   ├── domain/...
+│   │   │       │   └── presentation/
+│   │   │       │       ├── bloc/inbound_bloc.dart
+│   │   │       │       └── screens/
+│   │   │       │           ├── scan_screen.dart
+│   │   │       │           ├── manifest_screen.dart
+│   │   │       │           └── confirm_receipt_screen.dart
+│   │   │       ├── dispatch/                  # ★ تسليم للمناديب
+│   │   │       │   ├── data/...
+│   │   │       │   ├── domain/...
+│   │   │       │   └── presentation/
+│   │   │       │       ├── bloc/dispatch_bloc.dart
+│   │   │       │       └── screens/
+│   │   │       │           ├── assign_screen.dart
+│   │   │       │           ├── handover_screen.dart       # توقيع
+│   │   │       │           └── handover_summary_screen.dart
+│   │   │       ├── inventory/
+│   │   │       │   └── presentation/screens/inventory_screen.dart
+│   │   │       └── reports/
+│   │   │           └── presentation/screens/daily_report_screen.dart
+│   │   │
+│   │   ├── android/
+│   │   ├── ios/
+│   │   └── pubspec.yaml
+│   │
+│   ├── admin-panel/                           # ── React (Admin) ──
+│   │   ├── src/
+│   │   │   ├── main.tsx
+│   │   │   ├── App.tsx
+│   │   │   ├── router.tsx
+│   │   │   │
+│   │   │   ├── api/
+│   │   │   │   ├── client.ts                   # Axios instance
+│   │   │   │   ├── auth.ts
+│   │   │   │   ├── shipments.ts
+│   │   │   │   ├── drivers.ts
+│   │   │   │   ├── companies.ts
+│   │   │   │   ├── routes.ts
+│   │   │   │   ├── cod.ts
+│   │   │   │   ├── disputes.ts
+│   │   │   │   └── reports.ts
+│   │   │   │
+│   │   │   ├── features/
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── hooks/useAuth.ts
+│   │   │   │   │   ├── pages/LoginPage.tsx
+│   │   │   │   │   └── components/LoginForm.tsx
+│   │   │   │   ├── dashboard/
+│   │   │   │   │   ├── pages/DashboardPage.tsx
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── KpiCard.tsx
+│   │   │   │   │   │   ├── ShipmentsChart.tsx
+│   │   │   │   │   │   ├── DriverPerformanceChart.tsx
+│   │   │   │   │   │   └── LiveMap.tsx
+│   │   │   │   │   └── hooks/useDashboard.ts
+│   │   │   │   ├── shipments/
+│   │   │   │   │   ├── pages/
+│   │   │   │   │   │   ├── ShipmentsListPage.tsx
+│   │   │   │   │   │   ├── ShipmentDetailsPage.tsx
+│   │   │   │   │   │   └── CreateShipmentPage.tsx
+│   │   │   │   │   ├── components/
+│   │   │   │   │   │   ├── ShipmentTable.tsx
+│   │   │   │   │   │   ├── ShipmentFilters.tsx
+│   │   │   │   │   │   └── ShipmentStatusBadge.tsx
+│   │   │   │   │   └── hooks/useShipments.ts
+│   │   │   │   ├── drivers/
+│   │   │   │   │   ├── pages/
+│   │   │   │   │   │   ├── DriversListPage.tsx
+│   │   │   │   │   │   ├── DriverDetailsPage.tsx
+│   │   │   │   │   │   └── VerifyDriverPage.tsx
+│   │   │   │   │   ├── components/...
+│   │   │   │   │   └── hooks/useDrivers.ts
+│   │   │   │   ├── companies/
+│   │   │   │   │   ├── pages/CompaniesListPage.tsx
+│   │   │   │   │   ├── pages/CompanyDetailsPage.tsx
+│   │   │   │   │   └── hooks/useCompanies.ts
+│   │   │   │   ├── routes/
+│   │   │   │   │   ├── pages/RoutesListPage.tsx
+│   │   │   │   │   ├── pages/RouteDetailsPage.tsx
+│   │   │   │   │   ├── components/RoutesMap.tsx
+│   │   │   │   │   └── hooks/useRoutes.ts
+│   │   │   │   ├── cod-settlement/
+│   │   │   │   │   ├── pages/
+│   │   │   │   │   │   ├── CodPendingPage.tsx
+│   │   │   │   │   │   ├── SettlementsPage.tsx
+│   │   │   │   │   │   └── SettlementDetailsPage.tsx
+│   │   │   │   │   └── hooks/useCod.ts
+│   │   │   │   ├── disputes/
+│   │   │   │   │   ├── pages/DisputesListPage.tsx
+│   │   │   │   │   └── hooks/useDisputes.ts
+│   │   │   │   └── reports/
+│   │   │   │       ├── pages/ReportsPage.tsx
+│   │   │   │       └── components/...
+│   │   │   │
+│   │   │   ├── components/
+│   │   │   │   ├── ui/                          # shadcn/ui
+│   │   │   │   ├── layout/
+│   │   │   │   │   ├── Sidebar.tsx
+│   │   │   │   │   ├── Topbar.tsx
+│   │   │   │   │   └── PageShell.tsx
+│   │   │   │   ├── maps/
+│   │   │   │   │   ├── ShipmentMap.tsx
+│   │   │   │   │   └── HeatmapLayer.tsx
+│   │   │   │   └── tables/
+│   │   │   │       ├── DataTable.tsx
+│   │   │   │       └── Pagination.tsx
+│   │   │   │
+│   │   │   ├── stores/                          # Zustand
+│   │   │   │   ├── auth.store.ts
+│   │   │   │   ├── ui.store.ts
+│   │   │   │   └── filter.store.ts
+│   │   │   │
+│   │   │   ├── lib/
+│   │   │   │   ├── formatters.ts
+│   │   │   │   ├── validators.ts
+│   │   │   │   └── permissions.ts
+│   │   │   │
+│   │   │   └── styles/
+│   │   │       └── globals.css
+│   │   │
+│   │   ├── public/
+│   │   ├── index.html
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   ├── vite.config.ts
+│   │   ├── tailwind.config.ts
+│   │   └── Dockerfile
+│   │
+│   └── company-portal/                          # ── React (Company) ──
+│       ├── src/
+│       │   ├── main.tsx
+│       │   ├── App.tsx
+│       │   ├── router.tsx
+│       │   ├── api/
+│       │   │   ├── client.ts
+│       │   │   ├── shipments.ts                  # إنشاء شحنات
+│       │   │   ├── tracking.ts
+│       │   │   └── reports.ts
+│       │   ├── features/
+│       │   │   ├── auth/
+│       │   │   ├── dashboard/
+│       │   │   ├── shipments/                    # إنشاء، تتبع
+│       │   │   ├── bulk-import/                  # CSV/Excel
+│       │   │   ├── cod/                          # التسويات
+│       │   │   ├── api-keys/                     # إدارة مفاتيح
+│       │   │   └── reports/
+│       │   ├── components/...
+│       │   ├── stores/...
+│       │   └── lib/...
+│       ├── package.json
+│       ├── tsconfig.json
+│       ├── vite.config.ts
+│       └── Dockerfile
+│
+│
+│ ═══════════════════════════════════════════════════════════════
+│  PACKAGES — حزم مشتركة بين التطبيقات
+│ ═══════════════════════════════════════════════════════════════
+│
+├── packages/
+│   ├── shared-types/                            # TypeScript types مشتركة
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   ├── auth.types.ts
+│   │   │   ├── shipment.types.ts
+│   │   │   ├── driver.types.ts
+│   │   │   ├── route.types.ts
+│   │   │   ├── cod.types.ts
+│   │   │   ├── pod.types.ts
+│   │   │   ├── enums.ts                          # ★ Single source of truth
+│   │   │   └── api-response.types.ts
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   │
+│   ├── shared-ui/                                # مكونات UI (React)
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   ├── Button.tsx
+│   │   │   ├── Input.tsx
+│   │   │   ├── Select.tsx
+│   │   │   ├── Modal.tsx
+│   │   │   ├── Toast.tsx
+│   │   │   └── StatusBadge.tsx
+│   │   └── package.json
+│   │
+│   ├── sdk/                                      # SDK للشركات (API client)
+│   │   ├── src/
+│   │   │   ├── index.ts
+│   │   │   ├── MostaqlShippingClient.ts
+│   │   │   ├── resources/
+│   │   │   │   ├── shipments.resource.ts
+│   │   │   │   ├── tracking.resource.ts
+│   │   │   │   └── cod.resource.ts
+│   │   │   └── types/
+│   │   └── package.json
+│   │
+│   ├── eslint-config/
+│   │   ├── index.js
+│   │   └── package.json
+│   │
+│   └── tsconfig-base/
+│       ├── base.json
+│       ├── react.json
+│       └── node.json
+│
+│
+│ ═══════════════════════════════════════════════════════════════
+│  INFRASTRUCTURE — البنية التحتية والنشر
+│ ═══════════════════════════════════════════════════════════════
+│
+├── infrastructure/
+│   ├── docker/
+│   │   ├── postgres/
+│   │   │   └── init.sql                          # CREATE EXTENSION postgis
+│   │   ├── redis/
+│   │   │   └── redis.conf
+│   │   ├── minio/
+│   │   │   └── setup.sh
+│   │   └── nginx/
+│   │       └── nginx.conf
+│   │
+│   ├── terraform/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   ├── outputs.tf
+│   │   ├── modules/
+│   │   │   ├── vpc/
+│   │   │   ├── rds-postgis/
+│   │   │   ├── elasticache-redis/
+│   │   │   ├── s3/
+│   │   │   ├── eks/
+│   │   │   ├── cloudfront/
+│   │   │   ├── route53/
+│   │   │   └── secrets-manager/
+│   │   └── environments/
+│   │       ├── dev/
+│   │       │   ├── main.tf
+│   │       │   └── terraform.tfvars
+│   │       └── prod/
+│   │           ├── main.tf
+│   │           └── terraform.tfvars
+│   │
+│   ├── k8s/
+│   │   ├── namespace.yaml
+│   │   ├── api/
+│   │   │   ├── deployment.yaml
+│   │   │   ├── service.yaml
+│   │   │   ├── hpa.yaml                          # Auto-scaling
+│   │   │   └── configmap.yaml
+│   │   ├── routing-engine/
+│   │   │   ├── deployment.yaml
+│   │   │   ├── service.yaml
+│   │   │   └── hpa.yaml
+│   │   ├── realtime/
+│   │   │   ├── deployment.yaml
+│   │   │   └── service.yaml
+│   │   ├── web/
+│   │   │   ├── admin-deployment.yaml
+│   │   │   └── company-deployment.yaml
+│   │   ├── workers/
+│   │   │   ├── queue-worker-deployment.yaml
+│   │   │   └── scheduler-deployment.yaml
+│   │   ├── ingress.yaml
+│   │   ├── cert-manager/
+│   │   │   └── cluster-issuer.yaml
+│   │   └── monitoring/
+│   │       ├── prometheus/
+│   │       ├── grafana/
+│   │       ├── loki/
+│   │       └── sentry/
+│   │
+│   └── scripts/
+│       ├── bootstrap-dev.sh
+│       ├── backup-db.sh
+│       ├── restore-db.sh
+│       └── rotate-secrets.sh
+│
+│
+│ ═══════════════════════════════════════════════════════════════
+│  DOCS — التوثيق (ليس ترفًا)
+│ ═══════════════════════════════════════════════════════════════
+│
+├── docs/
+│   ├── architecture.md
+│   ├── database-schema.md
+│   ├── api-reference.md                          # OpenAPI/Swagger
+│   ├── api/
+│   │   └── openapi.yaml
+│   │
+│   ├── state-machines/
+│   │   ├── shipment-lifecycle.md                 # ★
+│   │   ├── cod-settlement.md                     # ★
+│   │   └── dispute-lifecycle.md
+│   │
+│   ├── adr/                                      # Architecture Decision Records
+│   │   ├── 001-monorepo.md
+│   │   ├── 002-routing-engine-separate.md
+│   │   ├── 003-postgresql-postgis.md
+│   │   ├── 004-flutter-mobile.md
+│   │   └── 005-offline-first-driver.md
+│   │
+│   ├── runbooks/
+│   │   ├── deployment.md
+│   │   ├── incident-response.md
+│   │   ├── database-migration.md
+│   │   └── scaling-routing-engine.md
+│   │
+│   ├── compliance/
+│   │   ├── data-privacy.md
+│   │   ├── tga-regulations.md                    # هيئة النقل
+│   │   └── pdpl.md                               # حماية البيانات
+│   │
+│   ├── ops/
+│   │   ├── sla.md
+│   │   ├── monitoring.md
+│   │   └── on-call.md
+│   │
+│   └── onboarding/
+│       ├── developer-setup.md
+│       ├── code-style.md
+│       └── git-workflow.md
+│
+│
+│ ═══════════════════════════════════════════════════════════════
+│  SCRIPTS — سكربتات مساعدة
+│ ═══════════════════════════════════════════════════════════════
+│
+└── scripts/
+    ├── setup.sh                                  # إعداد بيئة التطوير
+    ├── seed-db.ts
+    ├── generate-openapi.ts
+    ├── backup.sh
+    └── reset-local.sh
