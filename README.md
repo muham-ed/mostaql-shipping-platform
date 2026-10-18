@@ -9,7 +9,7 @@
 
 | Driver Mobile App (تطبيق المندوب) | Hub Supervisor App (تطبيق المشرف) |
 | :---: | :---: |
-| <img src="docs/screenshots/Screenshot_1792289520.png" width="350" /> | <img src="docs/screenshots/Screenshot_20261005_164841.png" width="350" /> |
+| <img src="docs/screenshots/Screenshot_1792289274.png" width="350" /> | <img src="docs/screenshots/Screenshot_1792290186.png" width="350" /> |
 
 ---
 
